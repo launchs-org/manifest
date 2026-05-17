@@ -1,0 +1,31 @@
+# builder: buildkit namespace に Pod を作成・削除・取得
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: launchs-org-builder
+  namespace: buildkit
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch", "create", "delete"]
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get", "list"]
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: launchs-org-builder
+  namespace: buildkit
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: launchs-org-builder
+subjects:
+  - kind: ServiceAccount
+    name: launchs-org-builder
+    namespace: launchs-org

@@ -1,0 +1,185 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: launchs-org-auth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: launchs-org-auth
+  template:
+    metadata:
+      labels:
+        app: launchs-org-auth
+    spec:
+      tolerations:
+        - key: node.kubernetes.io/not-ready
+          operator: Exists
+          effect: NoExecute
+          tolerationSeconds: 10
+        - key: node.kubernetes.io/unreachable
+          operator: Exists
+          effect: NoExecute
+          tolerationSeconds: 10
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: launchs-org-auth
+      containers:
+        - name: launchs-org-auth
+          image: ghcr.io/mattuu0/authbase/auth:v0.1.3
+          ports:
+            - containerPort: 8080
+            - containerPort: 9000
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 3
+            failureThreshold: 2
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+          env:
+            - name: DiscordClientID
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: DiscordClientID
+            - name: DiscordClientSecret
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: DiscordClientSecret
+            - name: DiscordCallback
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: DiscordCallback
+            - name: GoogleClientID
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: GoogleClientID
+            - name: GoogleClientSecret
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: GoogleClientSecret
+            - name: GoogleCallback
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: GoogleCallback
+            - name: GithubClientID
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: GithubClientID
+            - name: GithubClientSecret
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: GithubClientSecret
+            - name: GithubCallback
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: GithubCallback
+            - name: MicrosoftClientID
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: MicrosoftClientID
+            - name: MicrosoftClientSecret
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: MicrosoftClientSecret
+            - name: MicrosoftCallback
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: MicrosoftCallback
+            - name: AdminEmail
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: AdminEmail
+            - name: AdminPassword
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: AdminPassword
+            - name: DB_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: DB_DSN
+            - name: TOKEN_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: TOKEN_SECRET
+            - name: ADMIN_SESSION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: ADMIN_SESSION_KEY
+            - name: LOGIN_REDIRECT_URL
+              value: "/ui/"
+            - name: APP_NAME
+              value: "Launchs"
+            - name: DB_TYPE
+              value: "postgres"
+            - name: GRPC_ADDR
+              value: ":9000"
+            - name: CUSTOM_SCHEME
+              value: "authbase"
+            - name: JWT_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: JWT_PRIVATE_KEY
+
+          volumeMounts:
+            - name: assets-vol
+              mountPath: /assets/icons
+      volumes:
+        - name: assets-vol
+          persistentVolumeClaim:
+            claimName: launchs-org-claim
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: launchs-org-auth-svc
+spec:
+  type: LoadBalancer
+  selector:
+    app: launchs-org-auth
+  ports:
+    - name: api-port
+      protocol: TCP
+      port: 80
+      targetPort: 8080
+    - name: grpc-port
+      protocol: TCP
+      port: 9000
+      targetPort: 9000

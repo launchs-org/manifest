@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: launchs-org-builder
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: launchs-org-builder
+  template:
+    metadata:
+      labels:
+        app: launchs-org-builder
+    spec:
+      tolerations:
+        - key: node.kubernetes.io/not-ready
+          operator: Exists
+          effect: NoExecute
+          tolerationSeconds: 10
+        - key: node.kubernetes.io/unreachable
+          operator: Exists
+          effect: NoExecute
+          tolerationSeconds: 10
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: launchs-org-builder
+      serviceAccountName: launchs-org-builder
+      containers:
+        - name: launchs-org-builder
+          image: ghcr.io/launchs-org/builder:0.1.0
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+          env:
+            - name: DATABASE_TYPE
+              value: "postgres"
+            - name: DATABASE_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: DATABASE_DSN
+            - name: TASK_DATABASE_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: TASK_DATABASE_DSN
+            - name: HARBOR_URL
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: HARBOR_URL
+            - name: HARBOR_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: HARBOR_USERNAME
+            - name: HARBOR_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: HARBOR_PASSWORD
+            - name: REDIS_ADDR
+              value: "launchs-org-dragonfly.launchs-org:6379"

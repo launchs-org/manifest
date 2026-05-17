@@ -1,0 +1,32 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: launchs-org-ingressroute
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`www.launchs.org`) && PathPrefix(`/auth`)
+      kind: Rule
+      middlewares:
+        - name: launchs-org-stripprefix
+      services:
+        - name: launchs-org-auth-svc
+          port: 80
+
+    - match: Host(`www.launchs.org`) && PathPrefix(`/app`)
+      kind: Rule
+      middlewares:
+        - name: launchs-org-stripprefix
+      services:
+        - name: launchs-org-backend-svc
+          port: 8080
+
+    - match: Host(`www.launchs.org`) && PathPrefix(`/ui`)
+      kind: Rule
+      middlewares:
+        - name: launchs-org-stripprefix
+      services:
+        - name: launchs-org-static-svc
+          port: 80

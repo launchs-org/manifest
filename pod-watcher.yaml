@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: launchs-org-watcher
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: launchs-org-watcher
+  template:
+    metadata:
+      labels:
+        app: launchs-org-watcher
+    spec:
+      tolerations:
+        - key: node.kubernetes.io/not-ready
+          operator: Exists
+          effect: NoExecute
+          tolerationSeconds: 10
+        - key: node.kubernetes.io/unreachable
+          operator: Exists
+          effect: NoExecute
+          tolerationSeconds: 10
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: launchs-org-watcher
+      serviceAccountName: launchs-org-watcher
+      containers:
+        - name: launchs-org-watcher
+          image: ghcr.io/launchs-org/watcher:latest
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+          env:
+            - name: DATABASE_TYPE
+              value: "postgres"
+            - name: WATCHER_PORT
+              value: "8092"
+            - name: HARBOR_PROJECT
+              value: "buildkit"
+            - name: K8S_NAMESPACE
+              value: "default"
+            - name: DATABASE_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: DATABASE_DSN
+            - name: TASK_DATABASE_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: TASK_DATABASE_DSN
+            - name: HARBOR_URL
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: HARBOR_URL
+            - name: REDIS_ADDR
+              value: "launchs-org-dragonfly.launchs-org:6379"

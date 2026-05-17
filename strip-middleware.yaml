@@ -1,0 +1,10 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: launchs-org-stripprefix
+spec:
+  stripPrefix:
+    prefixes:
+      - "/app"
+      - "/auth"
+      # - "/ui"

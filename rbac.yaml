@@ -1,0 +1,86 @@
+# ServiceAccounts
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: launchs-org-builder
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: launchs-org-controller
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: launchs-org-watcher
+
+---
+# watcher: 全 namespace で launchs-managed ラベル付きリソースを read-only で watch
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: launchs-org-watcher
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "services", "configmaps", "namespaces"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "statefulsets", "replicasets"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: launchs-org-watcher
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: launchs-org-watcher
+subjects:
+  - kind: ServiceAccount
+    name: launchs-org-watcher
+    namespace: launchs-org
+
+---
+# controller: Namespace 作成・全リソースのデプロイ管理
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: launchs-org-controller
+rules:
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: [""]
+    resources: ["pods", "services", "configmaps", "secrets", "serviceaccounts", "persistentvolumeclaims"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "statefulsets", "replicasets", "daemonsets"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["batch"]
+    resources: ["jobs", "cronjobs"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses", "networkpolicies"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources: ["roles", "rolebindings"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: launchs-org-controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: launchs-org-controller
+subjects:
+  - kind: ServiceAccount
+    name: launchs-org-controller
+    namespace: launchs-org

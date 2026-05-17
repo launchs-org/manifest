@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: launchs-org-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: launchs-org-backend
+  template:
+    metadata:
+      labels:
+        app: launchs-org-backend
+    spec:
+      tolerations:
+        - key: node.kubernetes.io/not-ready
+          operator: Exists
+          effect: NoExecute
+          tolerationSeconds: 10
+        - key: node.kubernetes.io/unreachable
+          operator: Exists
+          effect: NoExecute
+          tolerationSeconds: 10
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: launchs-org-backend
+      containers:
+        - name: launchs-org-backend
+          image: ghcr.io/launchs-org/backend:0.1
+          ports:
+            - containerPort: 8090
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+          env:
+            - name: SessionSecret
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: SessionSecret
+            - name: DATABASE_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: DATABASE_DSN
+            - name: TASK_DATABASE_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: TASK_DATABASE_DSN
+            - name: GRPC_SERVER
+              value: "auth:9000"
+            - name: DATABASE_TYPE
+              value: "postgres"
+
+            - name: REDIS_ADDR
+              value: "launchs-org-dragonfly.launchs-org:6379"
+            
+            - name: JWT_PUBLIC_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: JWT_PUBLIC_KEY
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: launchs-org-backend-svc
+spec:
+  type: LoadBalancer
+  selector:
+    app: launchs-org-backend
+  ports:
+    - port: 8080
+      targetPort: 8080

@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-launchs-ingress
+spec:
+  podSelector: {} # {} にすることで「このNamespace内の全Pod」を対象にする
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+    - from:
+      - namespaceSelector: # ここが重要！
+          matchLabels:
+            kubernetes.io/metadata.name: launchs-org
+      - namespaceSelector: # ここが重要！
+          matchLabels:
+            kubernetes.io/metadata.name: cloudflared
+      - namespaceSelector: # ここが重要！
+          matchLabels:
+            kubernetes.io/metadata.name: default
+      - namespaceSelector: # ここが重要！
+          matchLabels:
+            kubernetes.io/metadata.name: traefik
+  egress:
+    - {} # 全ての宛先への通信を許可（許可設定が空のため）
+
+
