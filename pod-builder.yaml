@@ -31,7 +31,7 @@ spec:
       serviceAccountName: launchs-org-builder
       containers:
         - name: launchs-org-builder
-          image: ghcr.io/launchs-org/builder:0.1.0
+          image: ghcr.io/launchs-org/builder:0.1.3
           resources:
             requests:
               cpu: "100m"
