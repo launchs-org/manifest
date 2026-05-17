@@ -3,6 +3,7 @@ kind: Kustomization
 namespace: launchs-org
 resources:
   - ./secret.yaml
+  - ./postgresql-secret.yaml
   - ./rbac.yaml
   - ./volume.yaml
   - ./redis.yaml
