@@ -17,3 +17,14 @@ resources:
   - ./ingressroute.yaml
   - ./network-policy.yaml
   - ./postgresql.yaml
+images:
+  - name: ghcr.io/launchs-org/backend
+    newTag: "0.1.5"
+  - name: ghcr.io/launchs-org/watcher
+    newTag: "0.1.5"
+  - name: ghcr.io/launchs-org/builder
+    newTag: "0.1.5"
+  - name: ghcr.io/launchs-org/controller
+    newTag: "0.1.5"
+  - name: ghcr.io/launchs-org/frontend
+    newTag: "0.1.5"

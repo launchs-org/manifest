@@ -31,7 +31,7 @@ spec:
       serviceAccountName: launchs-org-watcher
       containers:
         - name: launchs-org-watcher
-          image: ghcr.io/launchs-org/watcher:0.1.5
+          image: ghcr.io/launchs-org/watcher
           resources:
             requests:
               cpu: "100m"

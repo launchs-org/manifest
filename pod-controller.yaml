@@ -31,7 +31,7 @@ spec:
       serviceAccountName: launchs-org-controller
       containers:
         - name: launchs-org-controller
-          image: ghcr.io/launchs-org/controller:0.1.5
+          image: ghcr.io/launchs-org/controller
           resources:
             requests:
               cpu: "100m"
