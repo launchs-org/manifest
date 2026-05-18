@@ -30,7 +30,7 @@ spec:
               app: launchs-org-backend
       containers:
         - name: launchs-org-backend
-          image: ghcr.io/launchs-org/backend:0.1.4
+          image: ghcr.io/launchs-org/backend:0.1.5
           ports:
             - containerPort: 8090
           resources:
