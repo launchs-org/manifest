@@ -56,7 +56,7 @@ kubectl delete -f rbac-builder.yaml
 kubectl delete -f namespace-buildkit.yaml
 
 # namespace を削除
-kubectl delete namespace launchs-org
+kubectl delete namespace launchs-org 
 ```
 
 ## 注意事項
