@@ -30,7 +30,7 @@ spec:
               app: launchs-org-static
       containers:
         - name: launchs-org-static
-          image: ghcr.io/launchs-org/frontend:0.1.3
+          image: ghcr.io/launchs-org/frontend:0.1.4
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
