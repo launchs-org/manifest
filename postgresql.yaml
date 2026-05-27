@@ -14,10 +14,15 @@ spec:
       - createdb
     task_user: []
     auth:
+      - createdb  
+    temporal:
       - createdb
   databases:
     maindb: main
     taskdb: task_user
     authdb: auth
+    temporaldb: temporal
+    temporalvisibilitydb: temporal
   postgresql:
     version: "17"
+    
