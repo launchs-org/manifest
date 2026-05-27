@@ -25,4 +25,5 @@ spec:
     temporalvisibilitydb: temporal
   postgresql:
     version: "17"
-    
+    parameters:  # Expert section
+      max_connections: "100"
