@@ -42,8 +42,6 @@ spec:
           env:
             - name: DATABASE_TYPE
               value: "postgres"
-            - name: K8S_NAMESPACE
-              value: "default"
             - name: DATABASE_DSN
               valueFrom:
                 secretKeyRef:
@@ -59,7 +57,22 @@ spec:
                 secretKeyRef:
                   name: launchs-org-secret
                   key: HARBOR_URL
+            - name: HARBOR_REGISTRY
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: HARBOR_REGISTRY
             - name: HARBOR_PROJECT
               value: "buildkit"
-            - name: REDIS_ADDR
-              value: "launchs-org-dragonfly.launchs-org:6379"
+            - name: HARBOR_ADMIN_USER
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: HARBOR_ADMIN_USER
+            - name: HARBOR_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: HARBOR_ADMIN_PASSWORD
+            - name: TEMPORAL_ADDRESS
+              value: "temporal-frontend.launchs-org:7233"

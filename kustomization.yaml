@@ -6,7 +6,6 @@ resources:
   - ./postgresql-secret.yaml
   - ./rbac.yaml
   - ./volume.yaml
-  - ./redis.yaml
   - ./pod-backend.yaml
   - ./pod-builder.yaml
   - ./pod-controller.yaml
@@ -19,12 +18,17 @@ resources:
   - ./postgresql.yaml
 images:
   - name: ghcr.io/launchs-org/backend
-    newTag: "0.1.7"
+    newName: ghcr.io/launchs-org/new-backend
+    newTag: "0.1.3"
   - name: ghcr.io/launchs-org/watcher
-    newTag: "0.1.7"
+    newName: ghcr.io/launchs-org/new-watcher
+    newTag: "0.1.3"
   - name: ghcr.io/launchs-org/builder
-    newTag: "0.1.7"
+    newName: ghcr.io/launchs-org/new-builder
+    newTag: "0.1.3"
   - name: ghcr.io/launchs-org/controller
-    newTag: "0.1.7"
+    newName: ghcr.io/launchs-org/new-controller
+    newTag: "0.1.3"
   - name: ghcr.io/launchs-org/frontend
-    newTag: "0.1.7"
+    newName: ghcr.io/launchs-org/new-frontend
+    newTag: "0.1.3"

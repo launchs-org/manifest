@@ -42,17 +42,13 @@ spec:
           env:
             - name: DATABASE_TYPE
               value: "postgres"
-            - name: WATCHER_PORT
-              value: "8092"
-            - name: HARBOR_PROJECT
-              value: "buildkit"
-            - name: K8S_NAMESPACE
-              value: "default"
             - name: DATABASE_DSN
               valueFrom:
                 secretKeyRef:
                   name: launchs-org-secret
                   key: DATABASE_DSN
+            - name: WATCHER_PORT
+              value: "8092"
             - name: TASK_DATABASE_DSN
               valueFrom:
                 secretKeyRef:
@@ -63,5 +59,9 @@ spec:
                 secretKeyRef:
                   name: launchs-org-secret
                   key: HARBOR_URL
-            - name: REDIS_ADDR
-              value: "launchs-org-dragonfly.launchs-org:6379"
+            - name: HARBOR_PROJECT
+              value: "buildkit"
+            - name: K8S_NAMESPACE
+              value: "default"
+            - name: TEMPORAL_ADDRESS
+              value: "temporal-frontend.launchs-org:7233"

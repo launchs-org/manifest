@@ -141,10 +141,6 @@ spec:
                 secretKeyRef:
                   name: launchs-org-secret
                   key: ADMIN_SESSION_KEY
-            - name: LOGIN_REDIRECT_URL
-              value: "/ui/"
-            - name: APP_NAME
-              value: "Launchs"
             - name: DB_TYPE
               value: "postgres"
             - name: GRPC_ADDR

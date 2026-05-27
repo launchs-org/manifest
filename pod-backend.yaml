@@ -46,6 +46,10 @@ spec:
                 secretKeyRef:
                   name: launchs-org-secret
                   key: SessionSecret
+            - name: GRPC_SERVER
+              value: "auth:9000"
+            - name: DATABASE_TYPE
+              value: "postgres"
             - name: DATABASE_DSN
               valueFrom:
                 secretKeyRef:
@@ -56,19 +60,26 @@ spec:
                 secretKeyRef:
                   name: launchs-org-secret
                   key: TASK_DATABASE_DSN
-            - name: GRPC_SERVER
-              value: "auth:9000"
-            - name: DATABASE_TYPE
-              value: "postgres"
-
-            - name: REDIS_ADDR
-              value: "launchs-org-dragonfly.launchs-org:6379"
-            
+            - name: APP_PORT
+              value: "8090"
+            - name: BUILDER_PORT
+              value: "8091"
+            - name: WATCHER_PORT
+              value: "8092"
+            - name: HARBOR_URL
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: HARBOR_URL
+            - name: HARBOR_PROJECT
+              value: "library"
             - name: JWT_PUBLIC_KEY
               valueFrom:
                 secretKeyRef:
                   name: launchs-org-secret
                   key: JWT_PUBLIC_KEY
+            - name: TEMPORAL_ADDRESS
+              value: "temporal-frontend.launchs-org:7233"
 
 ---
 apiVersion: v1

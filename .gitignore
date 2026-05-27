@@ -1,3 +1,4 @@
 secret.yaml
 postgresql-secret.yaml
+temporal-secret.yaml
 .DS_Store

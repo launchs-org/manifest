@@ -52,11 +52,15 @@ spec:
                 secretKeyRef:
                   name: launchs-org-secret
                   key: TASK_DATABASE_DSN
-            - name: HARBOR_URL
+            - name: BUILDER_PORT
+              value: "8091"
+            - name: HARBOR_REGISTRY
               valueFrom:
                 secretKeyRef:
                   name: launchs-org-secret
-                  key: HARBOR_URL
+                  key: HARBOR_REGISTRY
+            - name: HARBOR_PROJECT
+              value: "library"
             - name: HARBOR_USERNAME
               valueFrom:
                 secretKeyRef:
@@ -67,5 +71,5 @@ spec:
                 secretKeyRef:
                   name: launchs-org-secret
                   key: HARBOR_PASSWORD
-            - name: REDIS_ADDR
-              value: "launchs-org-dragonfly.launchs-org:6379"
+            - name: TEMPORAL_ADDRESS
+              value: "temporal-frontend.launchs-org:7233"
