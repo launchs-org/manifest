@@ -28,9 +28,106 @@ spec:
           labelSelector:
             matchLabels:
               app: launchs-org-auth
+      initContainers:
+        - name: auth-migrate
+          image: ghcr.io/mattuu0/authbase/auth:latest
+          command: ["/auth", "migrate", "-r"]
+          env:
+            - name: DiscordClientID
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: DiscordClientID
+            - name: DiscordClientSecret
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: DiscordClientSecret
+            - name: DiscordCallback
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: DiscordCallback
+            - name: GoogleClientID
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: GoogleClientID
+            - name: GoogleClientSecret
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: GoogleClientSecret
+            - name: GoogleCallback
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: GoogleCallback
+            - name: GithubClientID
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: GithubClientID
+            - name: GithubClientSecret
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: GithubClientSecret
+            - name: GithubCallback
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: GithubCallback
+            - name: MicrosoftClientID
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: MicrosoftClientID
+            - name: MicrosoftClientSecret
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: MicrosoftClientSecret
+            - name: MicrosoftCallback
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: MicrosoftCallback
+            - name: AdminEmail
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: AdminEmail
+            - name: AdminPassword
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: AdminPassword
+            - name: DB_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: DB_DSN
+            - name: TOKEN_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: TOKEN_SECRET
+            - name: ADMIN_SESSION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: ADMIN_SESSION_KEY
+            - name: DB_TYPE
+              value: "postgres"
+            - name: JWT_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: JWT_PRIVATE_KEY
       containers:
         - name: launchs-org-auth
-          image: ghcr.io/mattuu0/authbase/auth:v0.1.4
+          image: ghcr.io/mattuu0/authbase/auth:latest
           ports:
             - containerPort: 8080
             - containerPort: 9000
@@ -152,6 +249,8 @@ spec:
                 secretKeyRef:
                   name: launchs-org-secret
                   key: JWT_PRIVATE_KEY
+            - name: LOGIN_REDIRECT_URL
+              value: "/ui/"
 
           volumeMounts:
             - name: assets-vol
