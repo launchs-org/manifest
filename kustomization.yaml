@@ -10,6 +10,7 @@ resources:
   - ./pod-builder.yaml
   - ./pod-controller.yaml
   - ./pod-watcher.yaml
+  - ./archive-server.yaml
   - ./authbase.yaml
   - ./static.yaml
   - ./strip-middleware.yaml
@@ -18,17 +19,14 @@ resources:
   - ./postgresql.yaml
 images:
   - name: ghcr.io/launchs-org/backend
-    newName: ghcr.io/launchs-org/new-backend
     newTag: "latest"
   - name: ghcr.io/launchs-org/watcher
-    newName: ghcr.io/launchs-org/new-watcher
     newTag: "latest"
   - name: ghcr.io/launchs-org/builder
-    newName: ghcr.io/launchs-org/new-builder
     newTag: "latest"
   - name: ghcr.io/launchs-org/controller
-    newName: ghcr.io/launchs-org/new-controller
     newTag: "latest"
   - name: ghcr.io/launchs-org/frontend
-    newName: ghcr.io/launchs-org/new-frontend
+    newTag: "latest"
+  - name: ghcr.io/launchs-org/archive-server
     newTag: "latest"

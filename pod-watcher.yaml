@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: launchs-org-watcher
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: launchs-org-watcher
@@ -40,28 +40,26 @@ spec:
               cpu: "500m"
               memory: "256Mi"
           env:
-            - name: DATABASE_TYPE
-              value: "postgres"
-            - name: DATABASE_DSN
+            - name: DB_HOST
+              value: "launchs-org-database-cluster.launchs-org"
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_SSLMODE
+              value: "require"
+            - name: DB_NAME
+              value: "maindb"
+            - name: DB_USER
               valueFrom:
                 secretKeyRef:
-                  name: launchs-org-secret
-                  key: DATABASE_DSN
-            - name: WATCHER_PORT
-              value: "8092"
-            - name: TASK_DATABASE_DSN
+                  name: main.launchs-org-database-cluster.credentials.postgresql.acid.zalan.do
+                  key: username
+            - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: launchs-org-secret
-                  key: TASK_DATABASE_DSN
-            - name: HARBOR_URL
+                  name: main.launchs-org-database-cluster.credentials.postgresql.acid.zalan.do
+                  key: password
+            - name: HARBOR_ENDPOINT
               valueFrom:
                 secretKeyRef:
                   name: launchs-org-secret
                   key: HARBOR_URL
-            - name: HARBOR_PROJECT
-              value: "buildkit"
-            - name: K8S_NAMESPACE
-              value: "default"
-            - name: TEMPORAL_ADDRESS
-              value: "temporal-frontend.launchs-org:7233"

@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: launchs-org-backend
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: launchs-org-backend
@@ -12,6 +12,7 @@ spec:
       labels:
         app: launchs-org-backend
     spec:
+      serviceAccountName: launchs-org-backend
       tolerations:
         - key: node.kubernetes.io/not-ready
           operator: Exists
@@ -32,7 +33,7 @@ spec:
         - name: launchs-org-backend
           image: ghcr.io/launchs-org/backend
           ports:
-            - containerPort: 8090
+            - containerPort: 8080
           resources:
             requests:
               cpu: "100m"
@@ -41,45 +42,75 @@ spec:
               cpu: "500m"
               memory: "256Mi"
           env:
-            - name: SessionSecret
+            - name: SERVER_PORT
+              value: "8080"
+            - name: DB_HOST
+              value: "launchs-org-database-cluster.launchs-org"
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_SSLMODE
+              value: "require"
+            - name: DB_NAME
+              value: "maindb"
+            - name: DB_USER
               valueFrom:
                 secretKeyRef:
-                  name: launchs-org-secret
-                  key: SessionSecret
-            - name: GRPC_SERVER
-              value: "auth:9000"
-            - name: DATABASE_TYPE
-              value: "postgres"
-            - name: DATABASE_DSN
+                  name: main.launchs-org-database-cluster.credentials.postgresql.acid.zalan.do
+                  key: username
+            - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: launchs-org-secret
-                  key: DATABASE_DSN
-            - name: TASK_DATABASE_DSN
-              valueFrom:
-                secretKeyRef:
-                  name: launchs-org-secret
-                  key: TASK_DATABASE_DSN
-            - name: APP_PORT
-              value: "8090"
-            - name: BUILDER_PORT
-              value: "8091"
-            - name: WATCHER_PORT
-              value: "8092"
-            - name: HARBOR_URL
-              valueFrom:
-                secretKeyRef:
-                  name: launchs-org-secret
-                  key: HARBOR_URL
-            - name: HARBOR_PROJECT
-              value: "library"
+                  name: main.launchs-org-database-cluster.credentials.postgresql.acid.zalan.do
+                  key: password
             - name: JWT_PUBLIC_KEY
               valueFrom:
                 secretKeyRef:
                   name: launchs-org-secret
                   key: JWT_PUBLIC_KEY
-            - name: TEMPORAL_ADDRESS
+            - name: CLI_TOKEN_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: CLI_TOKEN_PRIVATE_KEY
+            - name: CLI_TOKEN_PUBLIC_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: CLI_TOKEN_PUBLIC_KEY
+            - name: ARCHIVE_UPLOAD_TOKEN_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: ARCHIVE_UPLOAD_TOKEN_SECRET
+            - name: HARBOR_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: HARBOR_URL
+            - name: HARBOR_ROBOT_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: HARBOR_ROBOT_NAME
+            - name: HARBOR_ROBOT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: launchs-org-secret
+                  key: HARBOR_ROBOT_SECRET
+            - name: STORAGE_CLASS_NAME
+              value: "longhorn"
+            - name: HARBOR_STORAGE_LIMIT_BYTES
+              value: "10737418240"
+            - name: TEMPORAL_HOST
               value: "temporal-frontend.launchs-org:7233"
+            - name: BASE_DOMAIN
+              value: "www.launchs.org"
+            - name: ARCHIVE_STORAGE_MODE
+              value: "local"
+            - name: ARCHIVE_SERVER_UPLOAD_URL
+              value: "http://archive-server.launchs-org:8080/archives"
+            - name: ARCHIVE_SERVER_DOWNLOAD_BASE
+              value: "http://archive-server.launchs-org:8080/archives"
 
 ---
 apiVersion: v1
@@ -91,5 +122,7 @@ spec:
   selector:
     app: launchs-org-backend
   ports:
-    - port: 8080
+    - name: http
+      protocol: TCP
+      port: 8080
       targetPort: 8080

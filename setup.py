@@ -137,27 +137,48 @@ def main() -> None:
     auth_pass  = ask("auth ユーザーのパスワード") or gen_password()
     temp_pass  = ask("temporal ユーザーのパスワード") or gen_password()
 
-    # DB 接続文字列
-    database_dsn      = f"host={pg_host} port={pg_port} sslmode=disable TimeZone=Asia/Tokyo user=main password={main_pass} dbname=maindb"
-    task_database_dsn = f"host={pg_host} port={pg_port} sslmode=disable user=task_user password={task_pass} dbname=taskdb"
-    db_dsn            = f"host={pg_host} port={pg_port} sslmode=disable TimeZone=Asia/Tokyo user=auth password={auth_pass} dbname=authdb"
+    # auth サービス用 DB 接続文字列（backend/builder/controller/watcher は個別の DB_HOST 等の環境変数を使う）
+    db_dsn = f"host={pg_host} port={pg_port} sslmode=require TimeZone=Asia/Tokyo user=auth password={auth_pass} dbname=authdb"
 
     # ════════════════════════════════════════════════════════════
     # 2. Harbor レジストリ
     # ════════════════════════════════════════════════════════════
     section("2. Harbor レジストリ")
-    harbor_host     = ask("Harbor ホスト名", "harbor.main-harbor")
-    harbor_url      = ask("Harbor URL", f"https://{harbor_host}")
+    harbor_host      = ask("Harbor ホスト名", "harbor.main-harbor")
+    harbor_url       = ask("Harbor URL", f"https://{harbor_host}")
+    harbor_robot_name   = ask("Harbor 管理用 robot アカウント名 (backend, controller 用)")
+    harbor_robot_secret = ask("Harbor 管理用 robot アカウントのシークレット (backend, controller 用)", secret=True)
     harbor_username = ask("Harbor ユーザー名 (builder 用)")
     harbor_password = ask("Harbor パスワード (builder 用)", secret=True)
-    harbor_admin_user     = ask("Harbor 管理者ユーザー名 (controller 用)")
-    harbor_admin_password = ask("Harbor 管理者パスワード (controller 用)", secret=True)
 
     # ════════════════════════════════════════════════════════════
-    # 3. Backend セッションシークレット
+    # 3. Backend
     # ════════════════════════════════════════════════════════════
     section("3. Backend")
-    session_secret = ask("SessionSecret（Enter で自動生成）") or gen_token(48)
+    archive_upload_token_secret = ask("ARCHIVE_UPLOAD_TOKEN_SECRET（Enter で自動生成）") or gen_token(48)
+
+    print("  CLIトークン署名用 Ed25519 の PEM 形式の鍵を貼り付けてください。")
+    print("  鍵を持っていない場合は以下で生成できます:")
+    print("    openssl genpkey -algorithm ed25519 -out cli_private.pem")
+    print("    openssl pkey -in cli_private.pem -pubout -out cli_public.pem\n")
+
+    print("  CLI_TOKEN_PRIVATE_KEY (PEM, 複数行可。入力後に空行 + Enter):")
+    cli_private_lines = []
+    while True:
+        line = sys.stdin.readline().rstrip("\n")
+        if line == "":
+            break
+        cli_private_lines.append(line)
+    cli_token_private_key = "\n".join(cli_private_lines)
+
+    print("  CLI_TOKEN_PUBLIC_KEY (PEM, 複数行可。入力後に空行 + Enter):")
+    cli_public_lines = []
+    while True:
+        line = sys.stdin.readline().rstrip("\n")
+        if line == "":
+            break
+        cli_public_lines.append(line)
+    cli_token_public_key = "\n".join(cli_public_lines)
 
     # ════════════════════════════════════════════════════════════
     # 4. Auth サービス
@@ -218,9 +239,9 @@ def main() -> None:
 
     # ── secret.yaml ──────────────────────────────────────────
     secret_values = {
-        "SessionSecret":        session_secret,
-        "DATABASE_DSN":         database_dsn,
-        "TASK_DATABASE_DSN":    task_database_dsn,
+        "CLI_TOKEN_PRIVATE_KEY":       cli_token_private_key,
+        "CLI_TOKEN_PUBLIC_KEY":        cli_token_public_key,
+        "ARCHIVE_UPLOAD_TOKEN_SECRET": archive_upload_token_secret,
         "DiscordClientID":      discord_client_id,
         "DiscordClientSecret":  discord_client_secret,
         "DiscordCallback":      discord_callback,
@@ -241,11 +262,10 @@ def main() -> None:
         "JWT_PRIVATE_KEY":      jwt_private_key,
         "JWT_PUBLIC_KEY":       jwt_public_key,
         "HARBOR_URL":           harbor_url,
-        "HARBOR_REGISTRY":      harbor_host,
+        "HARBOR_ROBOT_NAME":    harbor_robot_name,
+        "HARBOR_ROBOT_SECRET":  harbor_robot_secret,
         "HARBOR_USERNAME":      harbor_username,
         "HARBOR_PASSWORD":      harbor_password,
-        "HARBOR_ADMIN_USER":    harbor_admin_user,
-        "HARBOR_ADMIN_PASSWORD":harbor_admin_password,
     }
 
     with open(resolve("secret.yaml_template")) as f:
@@ -253,7 +273,7 @@ def main() -> None:
 
     for key, value in secret_values.items():
         # PEM 鍵はブロックスカラー形式に変換
-        if key in ("JWT_PRIVATE_KEY", "JWT_PUBLIC_KEY") and "\n" in value:
+        if key in ("JWT_PRIVATE_KEY", "JWT_PUBLIC_KEY", "CLI_TOKEN_PRIVATE_KEY", "CLI_TOKEN_PUBLIC_KEY") and "\n" in value:
             indented = "\n".join(f"    {line}" for line in value.splitlines())
             secret_content = secret_content.replace(
                 f'  {key}: ""',

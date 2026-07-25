@@ -29,3 +29,33 @@ subjects:
   - kind: ServiceAccount
     name: launchs-org-builder
     namespace: launchs-org
+
+---
+# backend: buildkit namespace の Pod を参照・キャンセル（削除）するために使用する
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: launchs-org-backend
+  namespace: buildkit
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch", "delete"]
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get", "list"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: launchs-org-backend
+  namespace: buildkit
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: launchs-org-backend
+subjects:
+  - kind: ServiceAccount
+    name: launchs-org-backend
+    namespace: launchs-org

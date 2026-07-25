@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: launchs-org-builder
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: launchs-org-builder
@@ -40,27 +40,31 @@ spec:
               cpu: "500m"
               memory: "256Mi"
           env:
-            - name: DATABASE_TYPE
-              value: "postgres"
-            - name: DATABASE_DSN
+            - name: TEMPORAL_HOST
+              value: "temporal-frontend.launchs-org:7233"
+            - name: DB_HOST
+              value: "launchs-org-database-cluster.launchs-org"
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_SSLMODE
+              value: "require"
+            - name: DB_NAME
+              value: "maindb"
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: main.launchs-org-database-cluster.credentials.postgresql.acid.zalan.do
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: main.launchs-org-database-cluster.credentials.postgresql.acid.zalan.do
+                  key: password
+            - name: HARBOR_ENDPOINT
               valueFrom:
                 secretKeyRef:
                   name: launchs-org-secret
-                  key: DATABASE_DSN
-            - name: TASK_DATABASE_DSN
-              valueFrom:
-                secretKeyRef:
-                  name: launchs-org-secret
-                  key: TASK_DATABASE_DSN
-            - name: BUILDER_PORT
-              value: "8091"
-            - name: HARBOR_REGISTRY
-              valueFrom:
-                secretKeyRef:
-                  name: launchs-org-secret
-                  key: HARBOR_REGISTRY
-            - name: HARBOR_PROJECT
-              value: "library"
+                  key: HARBOR_URL
             - name: HARBOR_USERNAME
               valueFrom:
                 secretKeyRef:
@@ -71,5 +75,3 @@ spec:
                 secretKeyRef:
                   name: launchs-org-secret
                   key: HARBOR_PASSWORD
-            - name: TEMPORAL_ADDRESS
-              value: "temporal-frontend.launchs-org:7233"
