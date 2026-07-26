@@ -4,6 +4,7 @@ metadata:
   name: launchs-org-backend
 spec:
   replicas: 1
+  
   selector:
     matchLabels:
       app: launchs-org-backend
@@ -104,7 +105,7 @@ spec:
             - name: TEMPORAL_HOST
               value: "temporal-frontend.launchs-org:7233"
             - name: BASE_DOMAIN
-              value: "www.launchs.org"
+              value: "launchs.org"
             - name: ARCHIVE_STORAGE_MODE
               value: "local"
             - name: ARCHIVE_SERVER_UPLOAD_URL

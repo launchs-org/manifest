@@ -65,13 +65,7 @@ spec:
                 secretKeyRef:
                   name: launchs-org-secret
                   key: HARBOR_URL
-            - name: HARBOR_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: launchs-org-secret
-                  key: HARBOR_USERNAME
-            - name: HARBOR_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: launchs-org-secret
-                  key: HARBOR_PASSWORD
+            - name: REGISTRY_HOST
+              # Harbor の TLS 証明書 SAN が harbor.main-harbor のみのため短縮名を使う。
+              # この名前は DNS では解決できないため、ビルド Job には hostAliases で解決させる（railpack/job.go 参照）。
+              value: "harbor.main-harbor"

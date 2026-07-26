@@ -130,4 +130,5 @@ helm uninstall temporal --namespace launchs-org
 ## 注意事項
 
 - `namespace-buildkit.yaml` と `rbac-builder.yaml` は kustomize の `namespace: launchs-org` による上書きを避けるため、kustomize からは除外しています。必ず手動で apply してください。
+- `rbac-builder.yaml` には builder/backend 用の buildkit namespace 向け Role/RoleBinding に加えて、builder が main-harbor namespace の harbor Service を参照するための Role/RoleBinding も含まれています（Harbor 証明書の SAN が短縮名 `harbor.main-harbor` のみのため、ビルド Job に hostAliases を注入する目的で使用）。
 - `secret.yaml`、`postgresql-secret.yaml` は `.gitignore` に含まれています。git にコミットしないよう注意してください。

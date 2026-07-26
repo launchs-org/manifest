@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: allow-from-launchs-org
+  name: harbor-combined-policy # クラスタ上で既に運用されているポリシー名に合わせる（重複作成を避けるため）
   namespace: main-harbor
 spec:
   podSelector: {} # {} にすることで「このNamespace内の全Pod」を対象にする
@@ -10,10 +10,22 @@ spec:
   - Egress
   ingress:
     - from:
-      - namespaceSelector: # ここが重要！
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: cloudflared
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: main-harbor
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: default
+      - namespaceSelector: # ビルドジョブ（railpack Job/Pod）が実行される namespace からの通信を許可する
+          matchLabels:
+            kubernetes.io/metadata.name: buildkit
+      - namespaceSelector: # backend/controller が Harbor API（プロジェクト作成・robot発行等）を呼ぶために必要
           matchLabels:
             kubernetes.io/metadata.name: launchs-org
+      - ipBlock:
+          cidr: 10.10.11.0/24
   egress:
     - {} # 全ての宛先への通信を許可（許可設定が空のため）
-
-

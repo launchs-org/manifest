@@ -59,3 +59,31 @@ subjects:
   - kind: ServiceAccount
     name: launchs-org-backend
     namespace: launchs-org
+
+---
+# builder: main-harbor namespace の harbor Service を参照する
+# （証明書の SAN が短縮名 harbor.main-harbor のみのため、hostAliases 用に ClusterIP を取得する）
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: launchs-org-builder
+  namespace: main-harbor
+rules:
+  - apiGroups: [""]
+    resources: ["services"]
+    verbs: ["get"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: launchs-org-builder
+  namespace: main-harbor
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: launchs-org-builder
+subjects:
+  - kind: ServiceAccount
+    name: launchs-org-builder
+    namespace: launchs-org
