@@ -69,5 +69,6 @@ spec:
               # Harbor の TLS 証明書 SAN が harbor.main-harbor のみのため短縮名を使う。
               # この名前は DNS では解決できないため、ビルド Job には hostAliases で解決させる（railpack/job.go 参照）。
               value: "harbor.main-harbor"
-            - name: BUILD_RUNTIME_CLASS
-              value: "gvisor"
+            # ビルドを gVisor(RuntimeClass)で動かすと、native スナップショッターが遅く(1 回 20〜30 分の見込み)、
+            # 既定の制限時間(10 分)に収まらず、ビルドが失敗する。速度を改善するまでは、設定しない(runc で動かす)。
+            # 有効にするときは、BUILD_RUNTIME_CLASS=gvisor と、BUILD_TIMEOUT(例: 45m)を、あわせて設定する。
