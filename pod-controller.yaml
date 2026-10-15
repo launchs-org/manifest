@@ -77,3 +77,7 @@ spec:
                   key: HARBOR_ROBOT_SECRET
             - name: HARBOR_STORAGE_LIMIT_BYTES
               value: "10737418240"
+            - name: STORAGE_CLASS_NAME
+              value: "longhorn"
+            - name: APP_RUNTIME_CLASS
+              value: "gvisor"

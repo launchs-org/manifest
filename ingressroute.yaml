@@ -7,6 +7,16 @@ spec:
     - web
     - websecure
   routes:
+    # ユーザー登録は Web から行えないようにする(/auth より優先して評価される)
+    - match: Host(`www.launchs.org`) && (PathPrefix(`/auth/basic/signup`) || PathPrefix(`/auth/admin/signup`))
+      kind: Rule
+      priority: 1000
+      middlewares:
+        - name: launchs-org-block-signup
+      services:
+        - name: launchs-org-auth-svc
+          port: 80
+
     - match: Host(`www.launchs.org`) && PathPrefix(`/auth`)
       kind: Rule
       middlewares:
