@@ -1,0 +1,11 @@
+# Web からのユーザー登録(/auth/basic/signup と /auth/admin/signup)を遮断する。
+# 許可する送信元を、誰にも一致しない予約アドレス(192.0.2.1: ドキュメント用の TEST-NET-1)だけにすることで、
+# どこからのリクエストも 403 になる(127.0.0.1 にすると、Pod 内部からの接続だけが通ってしまう)。
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: launchs-org-block-signup
+spec:
+  ipAllowList:
+    sourceRange:
+      - 192.0.2.1/32

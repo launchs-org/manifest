@@ -251,6 +251,8 @@ spec:
                   key: JWT_PRIVATE_KEY
             - name: LOGIN_REDIRECT_URL
               value: "/ui/"
+            - name: ALLOW_SIGNUP
+              value: "false"
 
           volumeMounts:
             - name: assets-vol

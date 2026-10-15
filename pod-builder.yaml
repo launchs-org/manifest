@@ -69,3 +69,5 @@ spec:
               # Harbor の TLS 証明書 SAN が harbor.main-harbor のみのため短縮名を使う。
               # この名前は DNS では解決できないため、ビルド Job には hostAliases で解決させる（railpack/job.go 参照）。
               value: "harbor.main-harbor"
+            - name: BUILD_RUNTIME_CLASS
+              value: "gvisor"

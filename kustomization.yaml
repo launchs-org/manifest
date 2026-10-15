@@ -15,18 +15,41 @@ resources:
   - ./static.yaml
   - ./strip-middleware.yaml
   - ./ingressroute.yaml
+  - ./middleware-block-signup.yaml
   - ./network-policy.yaml
+  - ./netpol-postgres-operator.yaml
   - ./postgresql.yaml
 images:
   - name: ghcr.io/launchs-org/backend
-    newTag: "latest"
+    digest: sha256:9d460d05bcc71b3474c43812d3abc0fade8895d1816ae0e206ebf8a517f50001
   - name: ghcr.io/launchs-org/watcher
-    newTag: "latest"
+    digest: sha256:5bf18d9ab19684d38e8571d635c56f93bcb63f77260bf443cbb764c3fa26e549
   - name: ghcr.io/launchs-org/builder
-    newTag: "latest"
+    digest: sha256:cba6efebc0f912d8189d761c94844700f8454920b3d39f236eac7d3cc3c43f1e
   - name: ghcr.io/launchs-org/controller
-    newTag: "latest"
+    digest: sha256:a18fdf4abf28f57524f530329505e9ad79b9427921683eae85254ad585606492
   - name: ghcr.io/launchs-org/frontend
-    newTag: "latest"
+    digest: sha256:88ca6ffd0b0d9a4134d6ffa9502950c916eab116537522fab2ab984e5164e23a
   - name: ghcr.io/launchs-org/archive-server
-    newTag: "latest"
+    digest: sha256:8d8366cce458a1b3998d74899602a7d93144023837cf5d1c3874864dcfbf1a6a
+  - name: ghcr.io/mattuu0/authbase/auth   # v0.1.7(ALLOW_SIGNUP 対応)。:latest ではなく、ダイジェストで固定する
+    digest: sha256:85169f1e1539ff56095551f2c4dabb475db581689bf0d758e2a5dd8d3f7995b1
+patches:
+  # 全 Deployment の主コンテナを堅牢化(root 前提のイメージを壊さないよう runAsNonRoot は付けない)
+  - target: {kind: Deployment}
+    patch: |-
+      - op: add
+        path: /spec/template/spec/securityContext
+        value: {seccompProfile: {type: RuntimeDefault}}
+      - op: add
+        path: /spec/template/spec/containers/0/securityContext
+        value:
+          allowPrivilegeEscalation: false
+          capabilities: {drop: ["ALL"]}
+  - target: {kind: Deployment, name: launchs-org-auth}
+    patch: |-
+      - op: add
+        path: /spec/template/spec/initContainers/0/securityContext
+        value:
+          allowPrivilegeEscalation: false
+          capabilities: {drop: ["ALL"]}

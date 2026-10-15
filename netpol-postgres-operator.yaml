@@ -1,0 +1,19 @@
+# postgres-operator(postgres-operator namespace)から DB クラスタへの管理接続だけを許可する
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-postgres-operator
+spec:
+  podSelector:
+    matchLabels:
+      application: spilo
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: postgres-operator
+      ports:
+        - {protocol: TCP, port: 5432}
+        - {protocol: TCP, port: 8008}
